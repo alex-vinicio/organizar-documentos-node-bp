@@ -14,26 +14,26 @@ module.exports = function archivosOrg(pathArchivo) {
     ];
 
     folderContainer.forEach((elementFolder) => {
-      fs.mkdir(
-        `${pathArchivo}\\${elementFolder}`,
-        { recursive: true },
-        (err) => {
-          if (!err) {
-            //lectura de los archivos
-            fs.readdir(pathArchivo, (err, files) => {
-              if (!err) {
-                let onlyFiles = files.filter((file) => {
-                  return fs.statSync(`${pathArchivo}\\${file}`).isFile();
-                });
-                onlyFiles.forEach((file) => {
-                  setTimeout(function () {
-                    if (elementFolder == "Documentos") {
+      if (elementFolder !== "otros") {
+        fs.mkdir(
+          `${pathArchivo}\\${elementFolder}`,
+          { recursive: true },
+          (err) => {
+            if (!err) {
+              //lectura de los archivos
+              fs.readdir(pathArchivo, (err, files) => {
+                if (!err) {
+                  let onlyFiles = files.filter((file) => {
+                    return fs.statSync(`${pathArchivo}\\${file}`).isFile();
+                  });
+                  onlyFiles.forEach((file) => {
+                    if (elementFolder === "Documentos") {
                       if (validationDocument(file)) {
                         if (fs.existsSync(`${pathArchivo}\\${file}`)) {
                           moveInFolder(pathArchivo, elementFolder, file);
                         }
                       }
-                    } else if (elementFolder == "Imágenes") {
+                    } else if (elementFolder === "Imágenes") {
                       if (
                         file.endsWith(".jpg") ||
                         file.endsWith(".png") ||
@@ -46,19 +46,19 @@ module.exports = function archivosOrg(pathArchivo) {
                           moveInFolder(pathArchivo, elementFolder, file);
                         }
                       }
-                    } else if (elementFolder == "Vídeos") {
+                    } else if (elementFolder === "Vídeos") {
                       if (file.endsWith(".mp4") || file.endsWith(".avi")) {
                         if (fs.existsSync(`${pathArchivo}\\${file}`)) {
                           moveInFolder(pathArchivo, elementFolder, file);
                         }
                       }
-                    } else if (elementFolder == "Música") {
+                    } else if (elementFolder === "Música") {
                       if (file.endsWith(".mp3") || file.endsWith(".wav")) {
                         if (fs.existsSync(`${pathArchivo}\\${file}`)) {
                           moveInFolder(pathArchivo, elementFolder, file);
                         }
                       }
-                    } else if (elementFolder == "Excel") {
+                    } else if (elementFolder === "Excel") {
                       if (
                         file.endsWith(".xlsx") ||
                         file.endsWith(".xls") ||
@@ -68,24 +68,42 @@ module.exports = function archivosOrg(pathArchivo) {
                           moveInFolder(pathArchivo, elementFolder, file);
                         }
                       }
-                    } else if (elementFolder == "Aplicaciones") {
+                    } else if (elementFolder === "Aplicaciones") {
                       if (file.endsWith(".exe")) {
                         if (fs.existsSync(`${pathArchivo}\\${file}`)) {
                           moveInFolder(pathArchivo, elementFolder, file);
                         }
                       }
-                    } else {
-                      if (fs.existsSync(`${pathArchivo}\\${file}`)) {
-                        moveInFolder(pathArchivo, elementFolder, file);
-                      }
                     }
-                  }, 100);
-                });
-              }
-            });
+                  });
+                }
+              });
+            }
           }
-        }
-      );
+        );
+      } else {
+        fs.mkdir(
+          `${pathArchivo}\\${elementFolder}`,
+          { recursive: true },
+          (err) => {
+            if (!err) {
+              //lectura de los archivos
+              fs.readdir(pathArchivo, (err, files) => {
+                if (!err) {
+                  let onlyFiles = files.filter((file) => {
+                    return fs.statSync(`${pathArchivo}\\${file}`).isFile();
+                  });
+                  onlyFiles.forEach((file) => {
+                    if (fs.existsSync(`${pathArchivo}\\${file}`)) {
+                      moveInFolder(pathArchivo, elementFolder, file);
+                    }
+                  });
+                }
+              });
+            }
+          }
+        );
+      }
     });
   }
 };
@@ -103,14 +121,16 @@ function validationDocument(file) {
   }
 }
 function moveInFolder(pathArchivo, elementFolder, file) {
-  try {
-    fs.rename(
-      `${pathArchivo}\\${file}`,
-      `${pathArchivo}\\${elementFolder}\\${file}`,
-      (err) => {
-        if (!err) {
+  setTimeout(function () {
+    try {
+      fs.rename(
+        `${pathArchivo}\\${file}`,
+        `${pathArchivo}\\${elementFolder}\\${file}`,
+        (err) => {
+          if (!err) {
+          }
         }
-      }
-    );
-  } catch (error) {}
+      );
+    } catch (error) {}
+  }, 100);
 }
